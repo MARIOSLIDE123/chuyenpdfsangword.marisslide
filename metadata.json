@@ -1,0 +1,6 @@
+{
+  "name": "PDF to Word Architect & Conversion Suite",
+  "description": "Senior Document Engineering platform for OCR, pixel-perfect layout reconstruction, font metric mapping, table extraction, and exportable DOCX generation powered by Gemini.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
