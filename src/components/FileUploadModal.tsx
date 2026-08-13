@@ -173,33 +173,35 @@ export const FileUploadModal: React.FC<FileUploadModalProps> = ({
             </div>
           )}
 
-          {/* Chọn File Mẫu Sẵn Có */}
-          <div>
-            <p className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-600 mb-3 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-amber-500" /> Hoặc Chọn Ngay File Mẫu Tiêu Chuẩn:
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {sampleDocsList.map((doc) => (
-                <button
-                  key={doc.documentName}
-                  onClick={() => {
-                    onSelectSample(doc.documentName);
-                    onClose();
-                  }}
-                  className="p-4 rounded-2xl bg-slate-50 hover:bg-blue-50/80 border border-slate-200 hover:border-blue-400 text-left transition group cursor-pointer shadow-sm"
-                >
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs font-bold font-mono px-2 py-0.5 rounded bg-blue-100 text-blue-800 border border-blue-200">
-                      {doc.pageCount} Trang
-                    </span>
-                  </div>
-                  <p className="text-xs sm:text-sm font-bold text-slate-800 truncate group-hover:text-blue-600 transition">
-                    {doc.documentName}
-                  </p>
-                </button>
-              ))}
+          {/* Chọn File Mẫu Sẵn Có (chỉ hiển thị nếu danh sách không rỗng) */}
+          {sampleDocsList && sampleDocsList.length > 0 && (
+            <div>
+              <p className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-600 mb-3 flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-amber-500" /> Hoặc Chọn Ngay File Mẫu Tiêu Chuẩn:
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {sampleDocsList.map((doc) => (
+                  <button
+                    key={doc.documentName}
+                    onClick={() => {
+                      onSelectSample(doc.documentName);
+                      onClose();
+                    }}
+                    className="p-4 rounded-2xl bg-slate-50 hover:bg-blue-50/80 border border-slate-200 hover:border-blue-400 text-left transition group cursor-pointer shadow-sm"
+                  >
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs font-bold font-mono px-2 py-0.5 rounded bg-blue-100 text-blue-800 border border-blue-200">
+                        {doc.pageCount} Trang
+                      </span>
+                    </div>
+                    <p className="text-xs sm:text-sm font-bold text-slate-800 truncate group-hover:text-blue-600 transition">
+                      {doc.documentName}
+                    </p>
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Modal Footer */}
