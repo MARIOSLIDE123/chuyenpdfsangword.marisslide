@@ -7,7 +7,7 @@ import { FileUploadModal } from './components/FileUploadModal';
 import { ApiKeyModal } from './components/ApiKeyModal';
 import { EduQuizModal } from './components/EduQuizModal';
 import { FooterBanner } from './components/FooterBanner';
-import { SAMPLE_DOCUMENTS } from './data/sampleDocuments';
+import { INITIAL_EMPTY_DOCUMENT, SAMPLE_DOCUMENTS } from './data/sampleDocuments';
 import { DocumentAnalysisReport } from './types';
 import { generateDocxBlob, downloadBlob, DocxExportMode } from './utils/docxGenerator';
 import { generatePptxBlob, downloadPptxFile } from './utils/pptxGenerator';
@@ -33,7 +33,7 @@ import {
 } from 'lucide-react';
 
 export default function App() {
-  const [currentDoc, setCurrentDoc] = useState<DocumentAnalysisReport>(SAMPLE_DOCUMENTS[0]);
+  const [currentDoc, setCurrentDoc] = useState<DocumentAnalysisReport>(INITIAL_EMPTY_DOCUMENT);
   const [activeTab, setActiveTab] = useState<'studio' | 'analysis' | 'strategy'>('studio');
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
@@ -69,20 +69,20 @@ export default function App() {
       if (mode === 'student_exam') suffix = '_DeThiHocSinh';
       if (mode === 'teacher_key') suffix = '_DapAnGiaoVien';
 
-      downloadBlob(blob, currentDoc.documentName.replace('.pdf', '') + `${suffix}.docx`);
-    } catch (err) {
+      downloadBlob(blob, (currentDoc.documentName || 'Document').replace('.pdf', '') + `${suffix}.docx`);
+    } catch (err: any) {
       console.error('Failed to generate DOCX:', err);
-      alert('Đã xảy ra lỗi khi tạo tệp .docx. Vui lòng thử lại.');
+      alert('Đã xảy ra lỗi khi tạo tệp .docx: ' + (err?.message || 'Vui lòng thử lại.'));
     }
   };
 
   const handleDownloadPptx = async () => {
     try {
       const blob = await generatePptxBlob(currentDoc);
-      downloadPptxFile(blob, currentDoc.documentName.replace('.pdf', '') + '_BaiGiang.ppt');
-    } catch (err) {
+      downloadPptxFile(blob, (currentDoc.documentName || 'Document').replace('.pdf', '') + '_BaiGiang.ppt');
+    } catch (err: any) {
       console.error('Failed to generate PPTX:', err);
-      alert('Đã xảy ra lỗi khi xuất slide PowerPoint.');
+      alert('Đã xảy ra lỗi khi xuất slide PowerPoint: ' + (err?.message || 'Vui lòng thử lại.'));
     }
   };
 
@@ -102,7 +102,6 @@ export default function App() {
       setActiveTab('studio');
     } catch (err: any) {
       console.error('Full analysis error:', err);
-      // Quy tắc AI Instructions: Khi lỗi, chuyển trạng thái thành "Đã dừng do lỗi" và hiển thị nguyên văn lỗi chữ đỏ
       setProcessStatus('error');
       setAnalysisError(err.message || '429 RESOURCE_EXHAUSTED: Thất bại khi phân tích tài liệu.');
     } finally {
@@ -156,7 +155,7 @@ export default function App() {
           </div>
         )}
 
-        {/* Thanh 3 Bước Hướng Dẫn & Bộ Công Cụ Xuất File Nâng Cấp (Vibrant Light Theme) */}
+        {/* Thanh 3 Bước Hướng Dẫn & Bộ Công Cụ Xuất File Nâng Cấp */}
         <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 border border-blue-400 rounded-3xl p-6 shadow-xl space-y-5 text-white">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Step 1 */}
@@ -170,11 +169,11 @@ export default function App() {
               <div className="flex-1">
                 <div className="flex items-center justify-between">
                   <h3 className="font-bold text-sm sm:text-base text-white group-hover:text-amber-200 transition">
-                    Chọn / Tải PDF
+                    1. Tải Lên PDF Của Bạn
                   </h3>
                   <Upload className="w-4 h-4 text-cyan-200" />
                 </div>
-                <p className="text-xs sm:text-sm text-blue-100 mt-0.5">Tải tệp PDF hoặc chọn file mẫu</p>
+                <p className="text-xs sm:text-sm text-blue-100 mt-0.5">Tải tệp PDF hoặc ảnh tài liệu mới</p>
               </div>
             </div>
 
@@ -191,7 +190,7 @@ export default function App() {
               <div className="flex-1">
                 <div className="flex items-center justify-between">
                   <h3 className="font-bold text-sm sm:text-base text-white group-hover:text-amber-200 transition">
-                    Xem & Chỉnh Trực Tiếp
+                    2. Xem & Chỉnh Trực Tiếp
                   </h3>
                   <Edit3 className="w-4 h-4 text-amber-300" />
                 </div>
@@ -210,7 +209,7 @@ export default function App() {
               <div className="flex-1">
                 <div className="flex items-center justify-between">
                   <h3 className="font-bold text-sm sm:text-base text-white group-hover:text-emerald-200 transition">
-                    Tải File Word (.docx)
+                    3. Tải File Word (.docx)
                   </h3>
                   <Download className="w-4 h-4 text-emerald-300" />
                 </div>
@@ -306,7 +305,7 @@ export default function App() {
             </button>
           </div>
 
-          {/* Trạng thái tệp hiện tại & Tiến trình theo AI_INSTRUCTIONS.md */}
+          {/* Trạng thái tệp hiện tại */}
           <div className="flex items-center gap-3">
             {isAnalyzing && (
               <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-blue-50 border border-blue-300 text-blue-700 text-xs font-bold font-mono animate-pulse">
