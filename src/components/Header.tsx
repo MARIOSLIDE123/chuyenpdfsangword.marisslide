@@ -80,21 +80,23 @@ export const Header: React.FC<HeaderProps> = ({
             </a>
           </div>
 
-          {/* Chọn File Mẫu Tiếng Việt */}
-          <div className="relative hidden xl:block">
-            <select
-              value={currentDoc.documentName}
-              onChange={(e) => onSelectSample(e.target.value)}
-              className="bg-slate-50 hover:bg-slate-100 text-slate-800 text-sm font-semibold rounded-xl px-4 py-2.5 pr-8 border border-slate-300 hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer transition shadow-sm"
-            >
-              <option disabled>-- Chọn File Mẫu --</option>
-              {sampleDocsList.map((doc) => (
-                <option key={doc.documentName} value={doc.documentName}>
-                  📄 {doc.documentName} ({doc.pageCount} Trang)
-                </option>
-              ))}
-            </select>
-          </div>
+          {/* Chọn File Mẫu Tiếng Việt (chỉ hiển thị nếu có file mẫu) */}
+          {sampleDocsList && sampleDocsList.length > 0 && (
+            <div className="relative hidden xl:block">
+              <select
+                value={currentDoc.documentName}
+                onChange={(e) => onSelectSample(e.target.value)}
+                className="bg-slate-50 hover:bg-slate-100 text-slate-800 text-sm font-semibold rounded-xl px-4 py-2.5 pr-8 border border-slate-300 hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer transition shadow-sm"
+              >
+                <option disabled>-- Chọn File Mẫu --</option>
+                {sampleDocsList.map((doc) => (
+                  <option key={doc.documentName} value={doc.documentName}>
+                    📄 {doc.documentName} ({doc.pageCount} Trang)
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* Nút Tải PDF / Ảnh */}
           <button
