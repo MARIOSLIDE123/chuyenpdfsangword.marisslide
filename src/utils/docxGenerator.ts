@@ -11,19 +11,37 @@ import {
   Header,
   Footer,
   HeadingLevel,
-  AlignmentType,
-  ShadingType
+  AlignmentType
 } from 'docx';
 import { DocumentAnalysisReport } from '../types';
 
 export type DocxExportMode = 'standard' | 'student_exam' | 'teacher_key';
 
-function sanitizeHexColor(colorStr?: string, defaultHex: string = 'FFFFFF'): string {
-  if (!colorStr) return defaultHex;
-  const clean = colorStr.replace('#', '').trim();
-  if (/^[0-9A-Fa-f]{6}$/.test(clean)) return clean;
-  if (/^[0-9A-Fa-f]{3}$/.test(clean)) return clean.split('').map(c => c + c).join('');
-  return defaultHex;
+/**
+ * Strictly sanitizes color strings for docx compatibility.
+ * Returns a 6-character hex string without '#' (e.g. '0F172A'), or undefined if transparent/invalid.
+ */
+function sanitizeHexColor(colorStr?: string): string | undefined {
+  if (!colorStr) return undefined;
+  const lower = colorStr.toLowerCase().trim();
+  if (
+    lower === 'transparent' ||
+    lower === 'none' ||
+    lower === 'inherit' ||
+    lower === 'initial' ||
+    lower === 'auto'
+  ) {
+    return undefined;
+  }
+  const clean = lower.replace('#', '').trim();
+  if (/^[0-9a-f]{6}$/.test(clean)) return clean.toUpperCase();
+  if (/^[0-9a-f]{3}$/.test(clean)) return clean.split('').map((c) => c + c).join('').toUpperCase();
+  return undefined;
+}
+
+function sanitizeBorderColor(colorStr?: string): string {
+  const hex = sanitizeHexColor(colorStr);
+  return hex || 'CBD5E1';
 }
 
 export async function generateDocxBlob(
@@ -213,16 +231,14 @@ export async function generateDocxBlob(
 
             const colSpan = Math.max(1, c.colSpan || 1);
             const rowSpan = Math.max(1, c.rowSpan || 1);
-            const bgHex = c.bgColor ? sanitizeHexColor(c.bgColor, 'FFFFFF') : undefined;
+            const bgHex = sanitizeHexColor(c.bgColor);
 
             return new TableCell({
               columnSpan: colSpan,
               rowSpan: rowSpan,
               shading: bgHex
                 ? {
-                    fill: bgHex,
-                    type: ShadingType.CLEAR,
-                    color: 'auto'
+                    fill: bgHex
                   }
                 : undefined,
               width: {
@@ -237,7 +253,7 @@ export async function generateDocxBlob(
                     new TextRun({
                       text: c.text || '',
                       bold: Boolean(c.isHeader),
-                      color: c.isHeader && bgHex && bgHex.toLowerCase().includes('0f172a') ? 'FFFFFF' : '000000',
+                      color: c.isHeader && bgHex && bgHex.includes('0F172A') ? 'FFFFFF' : '000000',
                       font: 'Arial',
                       size: c.isHeader ? 22 : 20
                     })
@@ -257,7 +273,7 @@ export async function generateDocxBlob(
         });
 
         if (tableRows.length > 0) {
-          const borderColorHex = sanitizeHexColor(tbl.borderColor, 'CBD5E1');
+          const borderColorHex = sanitizeBorderColor(tbl.borderColor);
           const borderWidth = Math.max(1, Math.round((tbl.borderWidthPt || 1) * 8));
 
           children.push(
