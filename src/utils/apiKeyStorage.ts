@@ -274,8 +274,19 @@ export async function analyzeDocumentWithFallback(
               httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
             });
 
+            const systemPrompt = `You are a Lead Optical Character Recognition (OCR) Engine & Senior Document Engineer specializing in 100% Full-Text Extraction for Microsoft Word (.docx) reconstruction.
+
+CRITICAL MANDATES FOR COMPLETE EXHAUSTIVE OCR EXTRACTION:
+1. EXHAUSTIVE OCR: Extract EVERY SINGLE PAGE, PARAGRAPH, HEADING, SUBHEADING, BULLET POINT, FOOTNOTE, HEADER, FOOTER, CAPTION, AND TABLE CELL from the document.
+2. NO SUMMARIZATION OR OMISSION: Do NOT summarize, abbreviate, trim, or skip ANY text. Every word, sentence, and paragraph in the input document MUST be extracted verbatim into "textBlocks" or "tables".
+3. COMPLETE TABLE EXTRACTION: Extract ALL rows and ALL columns of every table with exact text in every cell. Do NOT skip any rows or cells.
+4. EXACT READING ORDER: Output all text blocks sequentially in exact reading order per page.
+5. FONT & FORMATTING ACCURACY: Accurately estimate font sizes, bold weights, italics, and line spacing for pixel-perfect Word conversion.`;
+
             const contentsParts: any[] = [
-              { text: `Document Name: ${options.fileName || 'Document.pdf'}. Perform OCR and full layout reconstruction analysis.` }
+              {
+                text: `Document Name: ${options.fileName || 'Document.pdf'}. Perform an EXHAUSTIVE, COMPLETE, 100% FULL-TEXT OCR EXTRACTION on this document. Extract ALL text blocks and ALL table rows/cells verbatim without skipping a single word, sentence, or paragraph.`
+              }
             ];
 
             if (options.fileBase64 && options.mimeType) {
@@ -290,7 +301,11 @@ export async function analyzeDocumentWithFallback(
             const directResponse = await ai.models.generateContent({
               model: modelId,
               contents: { parts: contentsParts },
-              config: { responseMimeType: 'application/json' }
+              config: {
+                systemInstruction: systemPrompt,
+                responseMimeType: 'application/json',
+                maxOutputTokens: 8192
+              }
             });
 
             let cleanText = (directResponse.text || '{}').trim()
